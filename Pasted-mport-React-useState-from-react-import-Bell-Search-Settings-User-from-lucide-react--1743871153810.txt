@@ -1,0 +1,118 @@
+mport React, { useState } from 'react';
+import { Bell, Search, Settings, User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+
+const Navbar: React.FC = () => {
+  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+
+  // Mock search data - would be replaced with real data in a production app
+  const searchItems = [
+    { category: 'Trends', items: [
+      { name: 'Sustainable Fashion', href: '/' },
+      { name: 'AI Content Creation', href: '/' },
+      { name: 'NFT Collectibles', href: '/' },
+      { name: 'Virtual Reality Shopping', href: '/' },
+    ]},
+    { category: 'Hashtags', items: [
+      { name: '#SustainableFashion', href: '/' },
+      { name: '#AIRevolution', href: '/' },
+      { name: '#DigitalNomad', href: '/' },
+      { name: '#CleanBeauty', href: '/' },
+      { name: '#MentalHealthAwareness', href: '/' },
+    ]},
+    { category: 'Platforms', items: [
+      { name: 'Instagram', href: '/' },
+      { name: 'TikTok', href: '/' },
+      { name: 'Twitter', href: '/' },
+      { name: 'YouTube', href: '/' },
+      { name: 'Facebook', href: '/' },
+    ]},
+  ];
+
+  // Handle search dialog open
+  React.useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setOpen((open) => !open);
+      }
+    };
+    document.addEventListener('keydown', down);
+    return () => document.removeEventListener('keydown', down);
+  }, []);
+
+  const handleSelect = (item: { name: string; href: string }) => {
+    setOpen(false);
+    toast(`Selected: ${item.name}`);
+    navigate(item.href);
+  };
+
+  return (
+    <nav className="flex items-center justify-between p-4 border-b bg-white">
+      <div className="flex items-center">
+        <h1 className="text-xl font-bold text-trend-blue mr-2">TrendSpotter</h1>
+        <span className="bg-trend-teal text-white text-xs px-2 py-0.5 rounded-full">AI</span>
+      </div>
+      
+      <div className="flex-1 max-w-xl mx-8">
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <Search className="w-4 h-4 text-gray-500" />
+          </div>
+          <input
+            type="search"
+            className="block w-full p-2 pl-10 text-sm border border-gray-200 rounded-lg focus:ring-trend-lightBlue focus:border-trend-lightBlue bg-gray-50 cursor-pointer"
+            placeholder="Search for trends, topics, keywords... (Ctrl+K)"
+            onClick={() => setOpen(true)}
+            readOnly
+          />
+        </div>
+      </div>
+      
+      <div className="flex items-center space-x-3">
+        <Button variant="ghost" size="icon" className="relative">
+          <Bell className="h-5 w-5" />
+          <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500"></span>
+        </Button>
+        <Button variant="ghost" size="icon">
+          <Settings className="h-5 w-5" />
+        </Button>
+        <div className="h-8 w-8 rounded-full bg-trend-lightBlue grid place-items-center text-white">
+          <User className="h-4 w-4" />
+        </div>
+      </div>
+
+      <CommandDialog open={open} onOpenChange={setOpen}>
+        <CommandInput placeholder="Search for trends, topics, hashtags..." />
+        <CommandList>
+          <CommandEmpty>No results found.</CommandEmpty>
+          {searchItems.map((group) => (
+            <CommandGroup key={group.category} heading={group.category}>
+              {group.items.map((item) => (
+                <CommandItem 
+                  key={item.name} 
+                  onSelect={() => handleSelect(item)}
+                >
+                  {item.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          ))}
+        </CommandList>
+      </CommandDialog>
+    </nav>
+  );
+};
+
+export default Navbar;
